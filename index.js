@@ -43,6 +43,7 @@ const run = async () => {
           },
         ],
       };
+
       // Set the access policy for the bucket so all objects are readable
       new aws.s3.BucketPolicy('bucketPolicy', {
         bucket: siteBucket.bucket, // refer to the bucket created earlier
