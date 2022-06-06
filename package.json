@@ -1,0 +1,15 @@
+{
+  "name": "sitejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Raymond Turner",
+  "license": "ISC",
+  "dependencies": {
+    "@pulumi/aws": "^5.6.0",
+    "@pulumi/pulumi": "^3.33.2"
+  }
+}
