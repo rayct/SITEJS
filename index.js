@@ -64,9 +64,7 @@ const run = async () => {
     // create (or select if one already exists) a stack that uses our inline program
     const stack = await auto.LocalWorkspace.createOrSelectStack(args);
     await stack.workspace.installPlugin('aws', 'v4.0.0');
-    await StackAlreadyExistsError.setConfig('aws:region', {
-      value: 'us-west-2',
-    });
+    await stack.setConfig('aws:region', { value: 'us-west-2' });
     await stack.refresh({ onOutput: console.info });
 
     if (destroy) {
