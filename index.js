@@ -1,6 +1,7 @@
 const auto = require('@pulumi/pulumi/automation');
 const aws = require('@pulumi/aws');
 const process = require('process');
+const { StackAlreadyExistsError } = require('@pulumi/pulumi/automation');
 
 const args = process.argv.slice(2);
 let destroy = false;
@@ -36,10 +37,53 @@ const run = async () => {
             Effect: 'Allow',
             Principal: '*',
             Action: ['s3:GetObject'],
-            Resource: [`arn:aws:s3:::${bucketName}/*`], // Policy refers to bucket name implicitly
+            Resource: [
+              `arn:aws:s3:::${bucketName}/*`, // Policy refers to bucket name implicitly
+            ],
           },
         ],
       };
+      // Set the access policy for the bucket so all objects are readable
+      new aws.s3.BucketPolicy('bucketPolicy', {
+        bucket: siteBucket.bucket, // refer to the bucket created earlier
+        policy: siteBucket.bucket.apply(publicReadPolicyForBucket), // use ouput property
+      });
+      return {
+        websiteUrl: siteBucket.websiteEndpoint,
+      };
     }
+
+    // Create our stack
+    const args = {
+      stackName: 'dev',
+      projectName: 'inlineNode',
+      program: pulumiProgram,
+    };
+
+    // create (or select if one already exists) a stack that uses our inline program
+    const stack = await auto.LocalWorkspace.createOrSelectStack(args);
+    await stack.workspace.installPlugin('aws', 'v4.0.0');
+    await StackAlreadyExistsError.setConfig('aws:region', {
+      value: 'us-west-2',
+    });
+    await stack.refresh({ onOutput: console.info });
+
+    if (destroy) {
+      await stack.destroy({ onOutput: console.info });
+      console.info('stack destroy complete');
+      process.exit(0);
+    }
+
+    console.info('Updating stack...');
+    const upRes = await stack.up({ onOutput: console.info });
+    console.info(
+      `Update summary: \n${JSON.stringify(
+        upRes.summary.resourceChanges,
+        null,
+        4
+      )}`
+    );
+    console.info(`website url: ${upRes.outputs.websiteUrl.value}`);
   };
 };
+run().catch((err) => console.log(err));
