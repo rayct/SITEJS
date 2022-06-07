@@ -1,7 +1,7 @@
 const auto = require('@pulumi/pulumi/automation');
 const aws = require('@pulumi/aws');
 const process = require('process');
-const { StackAlreadyExistsError } = require('@pulumi/pulumi/automation');
+// const { StackAlreadyExistsError } = require('@pulumi/pulumi/automation');
 
 const args = process.argv.slice(2);
 let destroy = false;
@@ -18,7 +18,7 @@ const run = async () => {
         indexDocument: 'index.html',
       },
     });
-    const indexContent = `<html><head><title>Hello S3</title></head><body><p>Hello, <b> Pulumi..!</b></p></body></html>`;
+    const indexContent = `<html><head><title>Hello S3</title></head><body><p>Hello, <b>Pulumi..!</b></p></body></html>`;
 
     //   Write our index.html into the site bucket
     let object = new aws.s3.BucketObject('index', {
